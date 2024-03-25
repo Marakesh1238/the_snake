@@ -1,7 +1,9 @@
-
 import random
+
 import pygame
+
 from pygame.locals import QUIT
+
 # Инициализация PyGame:
 pygame.init()
 
@@ -51,7 +53,17 @@ class GameObject:
 
     def draw(self):
         """Заготовка метода для отрисовки объекта."""
-        pass
+
+
+def get_free_coordinates(snake_positions):
+    """Получение списка свободных координат."""
+    free_coordinates = []
+    for y in range(GRID_HEIGHT):
+        for x in range(GRID_WIDTH):
+            coordinate = (x * GRID_SIZE, y * GRID_SIZE)
+            if coordinate not in snake_positions:
+                free_coordinates.append(coordinate)
+    return free_coordinates
 
 
 class Apple(GameObject):
@@ -59,16 +71,16 @@ class Apple(GameObject):
     описывающий яблоко и действия с ним.
     """
 
-    def __init__(self):
+    def __init__(self, free_coordinates):
         super().__init__(body_color=APPLE_COLOR)
-        self.randomize_position()
+        self.randomize_position(free_coordinates)
 
-    def randomize_position(self):
-        """Определение позиции яблока"""
-        self.position = (
-            random.randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-            random.randint(0, GRID_HEIGHT - 1) * GRID_SIZE
-        )
+    def randomize_position(self, free_coordinates):
+        """Обновление позиции яблока по списку свободных координат."""
+        if free_coordinates:
+            self.position = random.choice(free_coordinates)
+        else:
+            print("Нет свободных координат для размещения яблока.")
 
     def draw(self):
         """Метод отрисовки объекта."""
@@ -84,11 +96,7 @@ class Snake(GameObject):
 
     def __init__(self):
         super().__init__(body_color=SNAKE_COLOR)
-        self.length = 1
-        self.positions = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
-        self.direction = RIGHT
-        self.next_direction = None
-        self.last = None
+        self.reset()
 
     def update_direction(self):
         """Метод обновления направления после нажатия на кнопку."""
@@ -116,7 +124,8 @@ class Snake(GameObject):
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
         # Отрисовка головы змейки
-        head_rect = pygame.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
+        head_position = self.get_head_position()
+        head_rect = pygame.Rect(head_position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, head_rect)
         pygame.draw.rect(screen, BORDER_COLOR, head_rect, 1)
 
@@ -138,7 +147,7 @@ class Snake(GameObject):
         self.last = None
 
 
-def handle_keys(game_object):
+def handle_keys(game_object: Snake):
     """Функция обработки действий пользователя."""
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -160,8 +169,9 @@ def main():
     объекты яблока и змейки и поддерживает состояние игры.
     """
     # Тут нужно создать экземпляры классов.
-    apple = Apple()
     snake = Snake()
+    free_coordinates = get_free_coordinates(snake.positions)
+    apple = Apple(free_coordinates)
 
     while True:
         clock.tick(SPEED)
@@ -171,10 +181,11 @@ def main():
 
         if snake.get_head_position() == apple.position:
             snake.length += 1
-            apple.randomize_position()
+            apple.randomize_position(free_coordinates)
 
         if len(set(snake.positions)) != len(snake.positions):
             snake.reset()
+            apple.randomize_position()
 
         screen.fill(BOARD_BACKGROUND_COLOR)
         apple.draw()
