@@ -71,7 +71,7 @@ class Apple(GameObject):
     описывающий яблоко и действия с ним.
     """
 
-    def __init__(self, free_coordinates):
+    def __init__(self, free_coordinates = None):
         super().__init__(body_color=APPLE_COLOR)
         self.randomize_position(free_coordinates)
 
