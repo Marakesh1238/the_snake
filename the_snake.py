@@ -1,7 +1,10 @@
+# Стандартные библиотеки
 import random
 
+# Сторонние библиотеки
 import pygame
 
+# Локальные импорты
 from pygame.locals import QUIT
 
 # Инициализация PyGame:
@@ -55,8 +58,8 @@ class GameObject:
         """Заготовка метода для отрисовки объекта."""
 
 
-def get_free_coordinates(snake_positions):
-    """Получение списка свободных координат."""
+def get_free_coordinates(snake_positions: list[tuple[int, int]]):
+    """Поaлучение списка свободных координат."""
     free_coordinates = []
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
@@ -71,11 +74,11 @@ class Apple(GameObject):
     описывающий яблоко и действия с ним.
     """
 
-    def __init__(self, free_coordinates = None):
+    def __init__(self, free_coordinates=None):
         super().__init__(body_color=APPLE_COLOR)
         self.randomize_position(free_coordinates)
 
-    def randomize_position(self, free_coordinates):
+    def randomize_position(self, free_coordinates: list[tuple[int, int]]):
         """Обновление позиции яблока по списку свободных координат."""
         if free_coordinates:
             self.position = random.choice(free_coordinates)
@@ -134,7 +137,7 @@ class Snake(GameObject):
             last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
 
-    def get_head_position(self):
+    def get_head_position(self) -> tuple[int, int]:
         """Определение позиции головы."""
         return self.positions[0]
 
